@@ -1,0 +1,86 @@
+Reviewer prompts for reproducing paper tables and figures
+
+Scope. These four prompts cover postprocessing only: reproducing the final tables, MAPE
+learning-curve figures, true-versus-predicted plots, and AULC significance tables from the
+archived per-seed and prediction CSVs. They are suggested reproduction instructions, not a
+verbatim record of the original model-development prompts.
+
+Run instructions, environments,
+data files, and seed-level outputs should be provided separately in a README and
+reproducibility archive; reviewers should not need to issue an AI prompt to train the models.
+
+Prompt 1 — Produce the final MAPE tables
+
+From the archived per-seed results, produce two publication-ready LaTeX booktabs tables:
+HGR/Burnup and Damped Sinusoid/Gompertz/Sigmoid. Order models LT-NP, R1-MTGP, TwinGP, IndGP,
+FedMGP, WPV-GP. Normalize schema names without conflating validation_mape and test_mape, and
+preserve the distinct dataset filenames (including both scenario_000_HGR and
+scenario_000_burnup). For each model–dataset pair at acquisition round 20, compare BALD and
+ACS-FW using their across-seed final-round average MAPE. Choose the lower-average strategy once
+for the model–dataset pair, not separately per seed. Report the selected strategy, mean, 95%
+confidence interval across the individual seeds, and actual sample size n. State the interval
+convention; default to mean ± t-quantile × sample SD / sqrt(n) unless the manuscript specifies
+a different formula. Detect whether MAPE files store fractions or percentages and multiply
+fractions by 100 exactly once. Do not choose WPV-GP's third RWPV strategy unless its inclusion
+is explicitly part of the prespecified manuscript comparison. Bold the lowest supported mean
+per dataset. Save exact plotting/table-source CSV, LaTeX, a source-file provenance report, and
+warnings for protocol differences or missing observations. Never force computed values to match
+the manuscript.
+
+Prompt 2 — Produce the five MAPE learning-curve panels
+
+Use per-seed trajectories rather than already rounded table values to generate two camera-ready
+Matplotlib figures appropriate for Technometrics and A4 layouts. The first figure is a vertical
+2×1 grid with HGR above Burnup. The second is a vertical 3×1 grid ordered Damped Sinusoid,
+Gompertz, Sigmoid. For every panel plot LT-NP, R1-MTGP, TwinGP, IndGP, FedMGP and WPV-GP with a
+fixed color/line-style identity for each model across all panels. The x-axis includes
+acquisition rounds 0 through 20, with major ticks 0, 2, 4, ..., 20. The y-axis is MAPE in
+percent. Show the across-seed mean curve and 95% confidence band for each model; use the
+documented acquisition-strategy rule consistently for all rounds and do not dynamically switch
+strategies at each step. Preserve a legible legend, consistent panel widths, thin axes, clean
+typography, tight vertical spacing, and sufficiently readable markers. Save vector PDF and
+high-resolution PNG versions and a tidy source CSV with dataset, model, strategy, seed,
+acquisition round and MAPE. Flag missing rounds, unequal seed counts and dissimilar
+test/validation protocols, without interpolating missing observations or presenting invalid
+confidence bands.
+
+Prompt 3 — Produce the true-versus-predicted curve figures
+
+Using archived LT-NP prediction CSVs, generate final-response true-versus-predicted plots for
+the HGR, Burnup, Damped Sinusoid, Gompertz and Sigmoid datasets. Use the nine same fixed
+experiment IDs within each dataset for BALD and ACS-FW, preserve response index order and
+actual original-scale true values, and align predictions by experiment ID, response coordinate,
+strategy and seed before aggregating. If the paper uses eight designated plotting seeds,
+compute a pointwise prediction mean over those eight seeds for the same experiment, rather than
+averaging unrelated selected experiments. Create separate publication-ready 3×3 curve grids for
+each strategy/dataset combination, with true curves as solid lines, predictions as dashed
+lines, consistent fonts and legend, and minimal excess whitespace. Save vector PDFs, PNG
+previews, and a tidy per-curve CSV with experiment ID, response index, strategy, mean
+prediction, true value and seed count. For the manuscript synthetic figure, supply
+figure*/subcaption Overleaf code arranging six PDFs in a 3×2 layout, rows Damped
+Sinusoid/Gompertz/Sigmoid and columns ACS-FW/BALD. State the true evaluation-set role shown by
+the LT-NP module (validation/held-out plotting) and do not rename it an independent test set.
+Do not invent curves where raw saved prediction CSVs are missing.
+
+Prompt 4 — Produce AULC significance-test tables
+
+With the per-seed trajectory files, compute one MAPE area under the learning curve (AULC) for
+each seed, dataset, model and acquisition strategy over rounds 0–20, using trapezoidal
+integration at the observed round positions. Specify whether AULC is normalized by the 20-round
+length and use that same definition for all models. Choose each model–dataset acquisition
+strategy using the documented rule and do not take the per-seed minimum. Compare LT-NP to each
+of R1-MTGP, TwinGP, IndGP, FedMGP and WPV-GP by a two-sided Welch two-sample t-test on
+seed-level AULC values. Correct the five comparisons within each dataset using Holm's method.
+Report the mean AULC in each model, difference, number of independent seeds, unadjusted p,
+Holm-adjusted p, and significance at alpha=0.05. Produce separate LaTeX booktabs tables for
+HGR/Burnup and the three synthetic datasets, plus the complete auditable calculation script and
+machine-readable CSV. Document nonidentical split constructions and LT-NP's use of validation
+data for early stopping. Do not claim a fully controlled predictive-comparison experiment where
+protocols are not comparable.
+
+Important usage notes
+
+- Use archived seed-level results that correspond to the actual reported experiment and module version; do not mix results from the old numerically encoded R1-MTGP and the newly one-hot-encoded R1-MTGP.
+- Preserve distinctions between validation and held-out test MAPE, original train/test splits, and seed counts. The current source modules are not fully harmonized on these dimensions.
+- Supply deterministic Python scripts with the files needed for reproducing final figures and tables. The prompts alone do not establish computational reproducibility.
+
